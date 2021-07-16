@@ -1,11 +1,9 @@
-'use strict';
-const chalk = require('..');
+import chalk from '../source/index.js';
+import convertColor from 'color-convert';
+import updateLog from 'log-update';
+import delay from 'yoctodelay';
 
 const ignoreChars = /[^!-~]/g;
-
-const delay = milliseconds => new Promise(resolve => {
-	setTimeout(resolve, milliseconds);
-});
 
 function rainbow(string, offset) {
 	if (!string || string.length === 0) {
@@ -17,10 +15,10 @@ function rainbow(string, offset) {
 	let hue = offset % 360;
 	const characters = [];
 	for (const character of string) {
-		if (character.match(ignoreChars)) {
+		if (ignoreChars.test(character)) {
 			characters.push(character);
 		} else {
-			characters.push(chalk.hsl(hue, 100, 50)(character));
+			characters.push(chalk.hex(convertColor.hsl.hex(hue, 100, 50))(character));
 			hue = (hue + hueStep) % 360;
 		}
 	}
@@ -29,9 +27,8 @@ function rainbow(string, offset) {
 }
 
 async function animateString(string) {
-	console.log();
-	for (let i = 0; i < 360 * 5; i++) {
-		console.log('\u001B[1F\u001B[G', rainbow(string, i));
+	for (let index = 0; index < 360 * 5; index++) {
+		updateLog(rainbow(string, index));
 		await delay(2); // eslint-disable-line no-await-in-loop
 	}
 }

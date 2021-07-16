@@ -1,4 +1,3 @@
-'use strict';
-const chalk = require('../source');
+import chalk, {chalkStderr} from '../source/index.js';
 
-console.log(`${chalk.hex('#ff6159')('testout')} ${chalk.stderr.hex('#ff6159')('testerr')}`);
+console.log(`${chalk.hex('#ff6159')('testout')} ${chalkStderr.hex('#ff6159')('testerr')}`);

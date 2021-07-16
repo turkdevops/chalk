@@ -1,9 +1,8 @@
 import test from 'ava';
+import chalk, {Chalk, chalkStderr} from '../source/index.js';
 
-// Spoof supports-color
-require('./_supports-color')(__dirname);
-
-const chalk = require('../source');
+chalk.level = 3;
+chalkStderr.level = 3;
 
 console.log('TERM:', process.env.TERM || '[none]');
 console.log('platform:', process.platform || '[unknown]');
@@ -95,26 +94,32 @@ test('line breaks should open and close colors with CRLF', t => {
 });
 
 test('properly convert RGB to 16 colors on basic color terminals', t => {
-	t.is(new chalk.Instance({level: 1}).hex('#FF0000')('hello'), '\u001B[91mhello\u001B[39m');
-	t.is(new chalk.Instance({level: 1}).bgHex('#FF0000')('hello'), '\u001B[101mhello\u001B[49m');
+	t.is(new Chalk({level: 1}).hex('#FF0000')('hello'), '\u001B[91mhello\u001B[39m');
+	t.is(new Chalk({level: 1}).bgHex('#FF0000')('hello'), '\u001B[101mhello\u001B[49m');
 });
 
 test('properly convert RGB to 256 colors on basic color terminals', t => {
-	t.is(new chalk.Instance({level: 2}).hex('#FF0000')('hello'), '\u001B[38;5;196mhello\u001B[39m');
-	t.is(new chalk.Instance({level: 2}).bgHex('#FF0000')('hello'), '\u001B[48;5;196mhello\u001B[49m');
-	t.is(new chalk.Instance({level: 3}).bgHex('#FF0000')('hello'), '\u001B[48;2;255;0;0mhello\u001B[49m');
+	t.is(new Chalk({level: 2}).hex('#FF0000')('hello'), '\u001B[38;5;196mhello\u001B[39m');
+	t.is(new Chalk({level: 2}).bgHex('#FF0000')('hello'), '\u001B[48;5;196mhello\u001B[49m');
+	t.is(new Chalk({level: 3}).bgHex('#FF0000')('hello'), '\u001B[48;2;255;0;0mhello\u001B[49m');
 });
 
 test('don\'t emit RGB codes if level is 0', t => {
-	t.is(new chalk.Instance({level: 0}).hex('#FF0000')('hello'), 'hello');
-	t.is(new chalk.Instance({level: 0}).bgHex('#FF0000')('hello'), 'hello');
+	t.is(new Chalk({level: 0}).hex('#FF0000')('hello'), 'hello');
+	t.is(new Chalk({level: 0}).bgHex('#FF0000')('hello'), 'hello');
 });
 
 test('supports blackBright color', t => {
 	t.is(chalk.blackBright('foo'), '\u001B[90mfoo\u001B[39m');
 });
 
-test('sets correct level for chalk.stderr and respects it', t => {
-	t.is(chalk.stderr.level, 3);
-	t.is(chalk.stderr.red.bold('foo'), '\u001B[31m\u001B[1mfoo\u001B[22m\u001B[39m');
+test('sets correct level for chalkStderr and respects it', t => {
+	t.is(chalkStderr.level, 3);
+	t.is(chalkStderr.red.bold('foo'), '\u001B[31m\u001B[1mfoo\u001B[22m\u001B[39m');
+});
+
+test('keeps function prototype methods', t => {
+	t.is(chalk.apply(chalk, ['foo']), 'foo');
+	t.is(chalk.bind(chalk, 'foo')(), 'foo');
+	t.is(chalk.call(chalk, 'foo'), 'foo');
 });
