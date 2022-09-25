@@ -1,52 +1,25 @@
+// TODO: Make it this when TS suports that.
+// import {ColorInfo, ColorSupportLevel} from '#supports-color';
+import {ColorInfo, ColorSupportLevel} from './vendor/supports-color/index.js';
+
+type BasicColor = 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white';
+type BrightColor = `${BasicColor}Bright`;
+type Grey = 'gray' | 'grey';
+
 /**
 Basic foreground colors.
 
 [More colors here.](https://github.com/chalk/chalk/blob/main/readme.md#256-and-truecolor-color-support)
 */
-export type ForegroundColor =
-	| 'black'
-	| 'red'
-	| 'green'
-	| 'yellow'
-	| 'blue'
-	| 'magenta'
-	| 'cyan'
-	| 'white'
-	| 'gray'
-	| 'grey'
-	| 'blackBright'
-	| 'redBright'
-	| 'greenBright'
-	| 'yellowBright'
-	| 'blueBright'
-	| 'magentaBright'
-	| 'cyanBright'
-	| 'whiteBright';
+
+export type ForegroundColor = BasicColor | BrightColor | Grey;
 
 /**
 Basic background colors.
 
 [More colors here.](https://github.com/chalk/chalk/blob/main/readme.md#256-and-truecolor-color-support)
 */
-export type BackgroundColor =
-	| 'bgBlack'
-	| 'bgRed'
-	| 'bgGreen'
-	| 'bgYellow'
-	| 'bgBlue'
-	| 'bgMagenta'
-	| 'bgCyan'
-	| 'bgWhite'
-	| 'bgGray'
-	| 'bgGrey'
-	| 'bgBlackBright'
-	| 'bgRedBright'
-	| 'bgGreenBright'
-	| 'bgYellowBright'
-	| 'bgBlueBright'
-	| 'bgMagentaBright'
-	| 'bgCyanBright'
-	| 'bgWhiteBright';
+export type BackgroundColor = `bg${Capitalize<ForegroundColor>}`;
 
 /**
 Basic colors.
@@ -67,15 +40,6 @@ export type Modifiers =
 	| 'strikethrough'
 	| 'visible';
 
-/**
-Levels:
-- `0` - All colors disabled.
-- `1` - Basic 16 colors support.
-- `2` - ANSI 256 colors support.
-- `3` - Truecolor 16 million colors support.
-*/
-export type ColorSupportLevel = 0 | 1 | 2 | 3;
-
 export interface Options {
 	/**
 	Specify the color support for Chalk.
@@ -94,63 +58,11 @@ export interface Options {
 /**
 Return a new Chalk instance.
 */
-export const Chalk: new (options?: Options) => ChalkInstance;
+export const Chalk: new (options?: Options) => ChalkInstance; // eslint-disable-line @typescript-eslint/naming-convention
 
-/**
-Detect whether the terminal supports color.
-*/
-export interface ColorSupport {
-	/**
-	The color level used by Chalk.
-	*/
-	level: ColorSupportLevel;
-
-	/**
-	Return whether Chalk supports basic 16 colors.
-	*/
-	hasBasic: boolean;
-
-	/**
-	Return whether Chalk supports ANSI 256 colors.
-	*/
-	has256: boolean;
-
-	/**
-	Return whether Chalk supports Truecolor 16 million colors.
-	*/
-	has16m: boolean;
-}
-
-interface ChalkFunction {
-	/**
-	Use a template string.
-
-	@remarks Template literals are unsupported for nested calls (see [issue #341](https://github.com/chalk/chalk/issues/341))
-
-	@example
-	```
-	import chalk from 'chalk';
-
-	log(chalk`
-	CPU: {red ${cpu.totalPercent}%}
-	RAM: {green ${ram.used / ram.total * 100}%}
-	DISK: {rgb(255,131,0) ${disk.used / disk.total * 100}%}
-	`);
-	```
-
-	@example
-	```
-	import chalk from 'chalk';
-
-	log(chalk.red.bgBlack`2 + 3 = {bold ${2 + 3}}`)
-	```
-	*/
-	(text: TemplateStringsArray, ...placeholders: unknown[]): string;
-
+export interface ChalkInstance {
 	(...text: unknown[]): string;
-}
 
-export interface ChalkInstance extends ChalkFunction {
 	/**
 	The color support for Chalk.
 
@@ -358,11 +270,18 @@ Order doesn't matter, and later styles take precedent in case of a conflict.
 
 This simply means that `chalk.red.yellow.green` is equivalent to `chalk.green`.
 */
-declare const chalk: ChalkInstance & ChalkFunction;
+declare const chalk: ChalkInstance;
 
-export const supportsColor: ColorSupport | false;
+export const supportsColor: ColorInfo;
 
 export const chalkStderr: typeof chalk;
 export const supportsColorStderr: typeof supportsColor;
+
+export {
+	ColorInfo,
+	ColorSupport,
+	ColorSupportLevel,
+// } from '#supports-color';
+} from './vendor/supports-color/index.js';
 
 export default chalk;
